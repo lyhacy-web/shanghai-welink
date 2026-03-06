@@ -1,5 +1,5 @@
+
 import React, { useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 
 const ExploreView: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('Housing');
@@ -27,20 +27,17 @@ const ExploreView: React.FC = () => {
       <div className="sticky top-0 z-40 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-100 dark:border-white/5 shadow-sm">
         {/* Top Header */}
         <div className="flex items-center p-5 pb-2 justify-between">
-          <motion.div 
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            className="flex size-11 shrink-0 items-center"
-          >
+          <div className="flex size-11 shrink-0 items-center">
             <div 
               className="bg-center bg-no-repeat aspect-square bg-cover rounded-2xl size-10 border-2 border-primary shadow-lg animate-pulse-glow"
               style={{ backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuCG2uax_7EgixMasAX0mnZCpjvG2FGHY_JjuoDu7vgzb0T3dtuFM8_xufhzS6CAw7mfrYTB7MFm_NkEhxDoWfZv52BYo6z3_f_jGHD3iQBYhHEDDvr7qNKlbE8F69mTjVGGfGN1RWrxPyaXZJbDVtPRT8kQs2NOPROzF-Wl2L3lTpQ8J33FPGcZBQ9bMrfx_NfnN65fI0724sD2nkvYBZma-u8KgYKaK9qrEl6r8SwslewP8qMUpsNUkpztJHV1NWV4gFvwRAKtNu0")` }}
             />
-          </motion.div>
+          </div>
           <div className="flex flex-col items-center flex-1">
             <h2 className="text-[#0d1b14] dark:text-white text-2xl font-black tracking-tighter italic leading-none drop-shadow-sm">city picks</h2>
             <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em] mt-1">SH Welink</p>
           </div>
-          <div className="w-11"></div>
+          <div className="w-11"></div> {/* Spacer for symmetry */}
         </div>
 
         {/* Compact Search Bar */}
@@ -65,19 +62,11 @@ const ExploreView: React.FC = () => {
       {/* Main Content Area */}
       <div className="flex-1 px-5 space-y-12">
         {/* Housing VR Section */}
-        <motion.div 
-          ref={housingRef} 
-          initial={{ y: 50, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          className="scroll-mt-48 pt-6"
-        >
+        <div ref={housingRef} className="scroll-mt-48 pt-6 animate-slide-up stagger-1">
           <SectionHeader title="3D Housing Preview" linkText="See all" />
           <div className="mt-5">
-            <motion.div 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex flex-col rounded-[2.5rem] shadow-2xl bg-white dark:bg-zinc-900 overflow-hidden cursor-pointer transition-all group border border-slate-50 dark:border-white/5"
+            <div 
+              className="flex flex-col rounded-[2.5rem] shadow-2xl bg-white dark:bg-zinc-900 overflow-hidden cursor-pointer active:scale-[0.98] transition-all group border border-slate-50 dark:border-white/5"
               onClick={() => setSelectedItem({
                 type: 'housing',
                 title: "Jing'an Luxury Lofts",
@@ -108,18 +97,12 @@ const ExploreView: React.FC = () => {
                     <p className="text-gray-400 text-xs font-bold">500m to Metro Line 2/7</p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Healthcare Section */}
-        <motion.div 
-          ref={healthcareRef} 
-          initial={{ y: 50, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          className="scroll-mt-48"
-        >
+        <div ref={healthcareRef} className="scroll-mt-48 animate-slide-up stagger-2">
           <SectionHeader title="Healthcare Elite" icon="filter_list" />
           <div className="mt-5 space-y-5">
             <MedicalCard 
@@ -138,16 +121,10 @@ const ExploreView: React.FC = () => {
               })}
             />
           </div>
-        </motion.div>
+        </div>
 
         {/* Education Section */}
-        <motion.div 
-          ref={educationRef} 
-          initial={{ y: 50, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          className="scroll-mt-48 pb-12"
-        >
+        <div ref={educationRef} className="scroll-mt-48 pb-12 animate-slide-up stagger-3">
           <SectionHeader title="Global Education" />
           <div className="flex gap-5 mt-5 overflow-x-auto no-scrollbar pb-8">
             <SchoolCard 
@@ -165,73 +142,53 @@ const ExploreView: React.FC = () => {
               })}
             />
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Detail Modal */}
-      <AnimatePresence>
-        {selectedItem && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-end justify-center px-4 pb-4 bg-black/40 backdrop-blur-md transition-all duration-300" 
-            onClick={closeModal}
+      {selectedItem && (
+        <div className="fixed inset-0 z-[100] flex items-end justify-center px-4 pb-4 bg-black/40 backdrop-blur-md transition-all duration-300" onClick={closeModal}>
+          <div 
+            className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-[3rem] overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-500"
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div 
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-[3rem] overflow-hidden shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="relative h-60 w-full bg-cover bg-center" style={{ backgroundImage: `url("${selectedItem.img}")` }}>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <button onClick={closeModal} className="absolute top-6 right-6 size-12 rounded-full bg-white/20 backdrop-blur-xl text-white flex items-center justify-center active:scale-90 transition-transform">
-                  <span className="material-symbols-outlined text-2xl">close</span>
-                </button>
+            <div className="relative h-60 w-full bg-cover bg-center" style={{ backgroundImage: `url("${selectedItem.img}")` }}>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <button onClick={closeModal} className="absolute top-6 right-6 size-12 rounded-full bg-white/20 backdrop-blur-xl text-white flex items-center justify-center active:scale-90 transition-transform">
+                <span className="material-symbols-outlined text-2xl">close</span>
+              </button>
+            </div>
+            <div className="p-8">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-3xl font-black dark:text-white tracking-tighter leading-none">{selectedItem.title}</h3>
+                {selectedItem.price && <span className="text-primary font-black text-xl italic">{selectedItem.price}</span>}
               </div>
-              <div className="p-8">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-3xl font-black dark:text-white tracking-tighter leading-none">{selectedItem.title}</h3>
-                  {selectedItem.price && <span className="text-primary font-black text-xl italic">{selectedItem.price}</span>}
-                </div>
-                <p className="text-sm text-gray-500 font-bold mb-5 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary text-[20px]">location_on</span>
-                  {selectedItem.location}
-                </p>
-                <p className="text-slate-700 dark:text-slate-300 text-base leading-relaxed mb-8">{selectedItem.desc}</p>
-                <div className="flex gap-2.5 flex-wrap mb-10">
-                  {selectedItem.tags?.map((t: string, i: number) => (
-                    <span key={i} className="px-4 py-2 bg-primary/10 text-primary text-[11px] font-black rounded-xl uppercase tracking-widest">{t}</span>
-                  ))}
-                </div>
-                <motion.button 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-full py-5 rounded-[2rem] bg-primary text-[#0d1b14] font-black text-lg shadow-2xl shadow-primary/30 transition-all hover:brightness-105"
-                >
-                  Schedule Visit
-                </motion.button>
+              <p className="text-sm text-gray-500 font-bold mb-5 flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-[20px]">location_on</span>
+                {selectedItem.location}
+              </p>
+              <p className="text-slate-700 dark:text-slate-300 text-base leading-relaxed mb-8">{selectedItem.desc}</p>
+              <div className="flex gap-2.5 flex-wrap mb-10">
+                {selectedItem.tags?.map((t: string, i: number) => (
+                  <span key={i} className="px-4 py-2 bg-primary/10 text-primary text-[11px] font-black rounded-xl uppercase tracking-widest">{t}</span>
+                ))}
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <button className="w-full py-5 rounded-[2rem] bg-primary text-[#0d1b14] font-black text-lg shadow-2xl shadow-primary/30 active:scale-95 transition-all hover:brightness-105">
+                Schedule Visit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 const CategoryChip: React.FC<{ icon: string; label: string; active?: boolean; onClick: () => void }> = ({ icon, label, active, onClick }) => (
-  <motion.button 
-    whileTap={{ scale: 0.95 }}
-    onClick={onClick} 
-    className={`flex h-12 shrink-0 items-center justify-center gap-x-3 rounded-full px-6 border transition-all ${active ? 'bg-primary border-primary shadow-xl shadow-primary/20 scale-105' : 'bg-white dark:bg-zinc-800 border-slate-100 dark:border-zinc-700 shadow-sm'}`}
-  >
+  <button onClick={onClick} className={`flex h-12 shrink-0 items-center justify-center gap-x-3 rounded-full px-6 border transition-all active:scale-95 ${active ? 'bg-primary border-primary shadow-xl shadow-primary/20 scale-105' : 'bg-white dark:bg-zinc-800 border-slate-100 dark:border-zinc-700 shadow-sm'}`}>
     <span className={`material-symbols-outlined text-xl ${active ? 'text-[#0d1b14]' : 'text-primary animate-pulse'}`}>{icon}</span>
     <p className={`${active ? 'text-[#0d1b14] font-black' : 'text-slate-800 dark:text-slate-100 font-bold'} text-sm tracking-tight whitespace-nowrap`}>{label}</p>
-  </motion.button>
+  </button>
 );
 
 const SectionHeader: React.FC<{ title: string; linkText?: string; icon?: string }> = ({ title, linkText, icon }) => (
@@ -243,12 +200,7 @@ const SectionHeader: React.FC<{ title: string; linkText?: string; icon?: string 
 );
 
 const MedicalCard: React.FC<{ title: string; location: string; tag: string; tags: string[]; img: string; onClick: () => void }> = ({ title, location, tag, tags, img, onClick }) => (
-  <motion.div 
-    whileHover={{ x: 10 }}
-    whileTap={{ scale: 0.98 }}
-    className="flex items-center gap-5 p-5 rounded-[2.2rem] bg-white dark:bg-zinc-900 shadow-xl border border-slate-50 dark:border-zinc-800 cursor-pointer transition-all hover:shadow-2xl hover:shadow-primary/5 group" 
-    onClick={onClick}
-  >
+  <div className="flex items-center gap-5 p-5 rounded-[2.2rem] bg-white dark:bg-zinc-900 shadow-xl border border-slate-50 dark:border-zinc-800 cursor-pointer active:scale-[0.98] transition-all hover:shadow-2xl hover:shadow-primary/5 group" onClick={onClick}>
     <div className="size-20 rounded-2xl bg-center bg-cover shrink-0 shadow-lg group-hover:rotate-3 transition-transform duration-500" style={{ backgroundImage: `url("${img}")` }}></div>
     <div className="flex-1 overflow-hidden">
       <div className="flex justify-between items-start gap-2 mb-1">
@@ -262,16 +214,11 @@ const MedicalCard: React.FC<{ title: string; location: string; tag: string; tags
         ))}
       </div>
     </div>
-  </motion.div>
+  </div>
 );
 
 const SchoolCard: React.FC<{ curriculum: string; name: string; location: string; img: string; onClick: () => void }> = ({ curriculum, name, location, img, onClick }) => (
-  <motion.div 
-    whileHover={{ y: -10 }}
-    whileTap={{ scale: 0.98 }}
-    className="min-w-[260px] bg-white dark:bg-zinc-900 rounded-[2.2rem] overflow-hidden shadow-xl border border-slate-50 dark:border-zinc-800 cursor-pointer transition-all group" 
-    onClick={onClick}
-  >
+  <div className="min-w-[260px] bg-white dark:bg-zinc-900 rounded-[2.2rem] overflow-hidden shadow-xl border border-slate-50 dark:border-zinc-800 cursor-pointer active:scale-[0.98] transition-all group" onClick={onClick}>
     <div className="h-36 bg-center bg-cover overflow-hidden" style={{ backgroundImage: `url("${img}")` }}>
         <div className="size-full bg-black/5 group-hover:bg-transparent transition-all duration-700"></div>
     </div>
@@ -291,7 +238,7 @@ const SchoolCard: React.FC<{ curriculum: string; name: string; location: string;
           </div>
       </div>
     </div>
-  </motion.div>
+  </div>
 );
 
 export default ExploreView;

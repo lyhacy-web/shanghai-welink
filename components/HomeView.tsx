@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { AppLanguage } from '../types';
 
 interface HomeViewProps {
@@ -63,39 +62,31 @@ const HomeView: React.FC<HomeViewProps> = ({ lang, setLang, onChatStart, onCateg
         
         {/* SH Emoji Stream */}
         {shDecor.map((el, i) => (
-          <motion.div 
+          <div 
             key={i} 
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 0.2, scale: parseFloat(el.scale) }}
-            transition={{ delay: parseFloat(el.delay), duration: 1 }}
             className="floating-emoji animate-float-slow text-2xl"
             style={{ 
                 top: el.top, 
                 left: el.left, 
+                animationDelay: el.delay,
+                transform: `scale(${el.scale})`
             }}
           >
             {el.char}
-          </motion.div>
+          </div>
         ))}
       </div>
 
-      {/* FIXED Language Button */}
-      <motion.button 
-          whileHover={{ scale: 1.1, rotate: 90 }}
-          whileTap={{ scale: 0.9 }}
+      {/* FIXED Language Button to ensure visibility */}
+      <button 
           onClick={() => setShowLangPicker(true)}
-          className="fixed top-8 right-8 z-[60] size-12 rounded-2xl bg-white/30 dark:bg-black/30 backdrop-blur-3xl border border-white/40 dark:border-white/10 flex items-center justify-center text-slate-800 dark:text-white shadow-2xl transition-all group overflow-hidden"
+          className="fixed top-8 right-8 z-[60] size-12 rounded-2xl bg-white/20 backdrop-blur-3xl border border-white/40 flex items-center justify-center text-white shadow-2xl active:scale-90 transition-all hover:bg-white/40 group overflow-hidden"
       >
-          <span className="material-symbols-outlined text-xl">translate</span>
-      </motion.button>
+          <span className="material-symbols-outlined text-xl group-hover:rotate-180 transition-transform duration-700">translate</span>
+      </button>
 
       {/* Header Section */}
-      <motion.div 
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-        className="bg-primary pt-12 pb-24 px-6 rounded-b-[4.5rem] shadow-[0_30px_70px_-15px_rgba(19,236,128,0.45)] relative z-10 overflow-hidden shrink-0"
-      >
+      <div className="bg-primary pt-12 pb-24 px-6 rounded-b-[4.5rem] shadow-[0_30px_70px_-15px_rgba(19,236,128,0.45)] relative z-10 overflow-hidden shrink-0">
         
         {/* Header Grid Overlay */}
         <div className="absolute inset-0 opacity-15 pointer-events-none">
@@ -110,7 +101,7 @@ const HomeView: React.FC<HomeViewProps> = ({ lang, setLang, onChatStart, onCateg
         </div>
 
         <div className="flex justify-between items-start mb-4 relative z-20">
-          <div className="flex flex-col group cursor-default pr-20">
+          <div className="flex flex-col group cursor-default pr-20"> {/* PR-20 to avoid language button */}
             <div className="flex items-center gap-3">
               <h1 className="text-white text-3xl font-black leading-none tracking-tighter transition-all group-hover:scale-105">SHANG HAI!</h1>
               <div className="flex gap-1 animate-bounce">
@@ -126,6 +117,7 @@ const HomeView: React.FC<HomeViewProps> = ({ lang, setLang, onChatStart, onCateg
           </div>
           
           <div className="flex flex-col gap-2 relative z-10">
+            {/* Live indicator removed here and moved to a better spot or just smaller */}
             <div className="bg-white/15 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 flex items-center gap-2">
                 <div className="size-2 rounded-full bg-green-400 animate-pulse"></div>
                 <span className="text-[9px] text-white font-black uppercase tracking-widest">Live</span>
@@ -134,20 +126,15 @@ const HomeView: React.FC<HomeViewProps> = ({ lang, setLang, onChatStart, onCateg
         </div>
 
         {/* AI Greeting Card */}
-        <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.3, type: 'spring' }}
-          className="flex items-center gap-5 bg-white/30 dark:bg-black/30 backdrop-blur-3xl p-5 rounded-[3.5rem] border border-white/50 dark:border-white/10 shadow-[0_30px_60px_-10px_rgba(0,0,0,0.2)] mt-12 relative z-20 animate-float-fast"
-        >
-          <div className="size-16 rounded-[2rem] border-2 border-white dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden shadow-2xl shrink-0 relative group">
+        <div className="flex items-center gap-5 bg-white/25 backdrop-blur-3xl p-5 rounded-[3.5rem] border border-white/45 shadow-[0_30px_60px_-10px_rgba(0,0,0,0.2)] mt-12 relative z-20 animate-float-fast">
+          <div className="size-16 rounded-[2rem] border-2 border-white bg-white overflow-hidden shadow-2xl shrink-0 relative group">
             <img 
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1AnjqkPoQm3pk-3kBpy77PCfjcc07Zlnpv4KgNiT4VZBC_YvZXFAgnfszjD5gYRcQ8AKG5tNiApQEfIJe4bjL5dP2uYBqK-NbYj07H-cC60gV85aAnOtQ6ebK6shs4tAtEPG0qJMPw-svNd8gylzgFUgBUtHPJsJsMN5oO8v8QoKdWgJwSj8_lK38sclH6lOz86DuHl2t9ANsHnIm_goxAjNsgLD3_WVL3aukvFRT2THSx2jSXX5UknXszs_L9D-0YQ0srpuDMiw" 
               className="size-full object-cover scale-110 group-hover:scale-125 transition-transform duration-500" 
               alt="Link Avatar" 
             />
             <div className="absolute top-0 right-0 p-1">
-                <div className="size-3 bg-green-400 border-2 border-white dark:border-zinc-800 rounded-full"></div>
+                <div className="size-3 bg-green-400 border-2 border-white rounded-full"></div>
             </div>
           </div>
           <div className="flex-1">
@@ -157,24 +144,15 @@ const HomeView: React.FC<HomeViewProps> = ({ lang, setLang, onChatStart, onCateg
                Link Guide AI
             </p>
           </div>
-          <motion.div 
-            animate={{ rotate: [0, 15, -15, 0] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-            className="size-10 rounded-full bg-primary/20 flex items-center justify-center text-white"
-          >
+          <div className="size-10 rounded-full bg-primary/20 flex items-center justify-center text-white">
              <span className="material-symbols-outlined font-black">bolt</span>
-          </motion.div>
-        </motion.div>
-      </motion.div>
+          </div>
+        </div>
+      </div>
 
       {/* Main Content Area */}
       <main className="flex-1 px-6 -mt-12 relative z-30 mb-8 space-y-12 pb-10">
-        <motion.div 
-          initial={{ y: 50, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          className="glass rounded-[3.5rem] p-8 shadow-[0_35px_80px_-20px_rgba(0,0,0,0.15)] border-t-4 border-primary"
-        >
+        <div className="glass rounded-[3.5rem] p-8 shadow-[0_35px_80px_-20px_rgba(0,0,0,0.15)] animate-slide-up stagger-1 border-t-4 border-primary">
           <h3 className="text-slate-900 dark:text-white text-2xl font-black mb-7 flex items-center gap-4">
             <div className="size-11 rounded-2xl bg-primary/20 flex items-center justify-center animate-pulse-glow">
               <span className="material-symbols-outlined text-primary font-black text-2xl">star</span>
@@ -186,16 +164,9 @@ const HomeView: React.FC<HomeViewProps> = ({ lang, setLang, onChatStart, onCateg
             <ActionCard icon="directions_subway" label={currentT.metro} color="bg-blue-600" onClick={() => onChatStart(lang === 'CN' ? "上海地铁支付方式" : "Shanghai metro payment options")} />
             <ActionCard icon="badge" label={currentT.visa} color="bg-emerald-500" onClick={() => onChatStart(lang === 'CN' ? "上海工作签证流程" : "Shanghai work visa process")} />
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div 
-          initial={{ y: 50, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          whileHover={{ scale: 1.02 }}
-          className="relative rounded-[3.5rem] aspect-[16/11] overflow-hidden shadow-2xl cursor-pointer active:scale-[0.96] transition-all group border-2 border-transparent hover:border-primary/40" 
-          onClick={onCategorySelect}
-        >
+        <div className="relative rounded-[3.5rem] aspect-[16/11] overflow-hidden shadow-2xl cursor-pointer active:scale-[0.96] transition-all group animate-slide-up stagger-2 border-2 border-transparent hover:border-primary/40" onClick={onCategorySelect}>
           <img src="https://images.unsplash.com/photo-1542362567-b07e54358753?q=80&w=1200&auto=format&fit=crop" className="absolute inset-0 size-full object-cover transition-transform duration-1000 group-hover:scale-110 z-0" alt="Artistic Shanghai" style={{ filter: 'grayscale(0.3) contrast(1.1) brightness(0.85) hue-rotate(160deg) saturate(1.1)', objectPosition: 'center bottom' }} />
           <div className="absolute inset-0 bg-gradient-to-t from-teal-950/95 via-transparent to-transparent z-10" />
           <div className="absolute top-8 right-8 z-20">
@@ -212,96 +183,69 @@ const HomeView: React.FC<HomeViewProps> = ({ lang, setLang, onChatStart, onCateg
             <h4 className="text-white text-5xl font-black tracking-tighter drop-shadow-2xl leading-none italic">{currentT.explore}</h4>
             <p className="text-white/60 text-xs font-bold mt-3 tracking-widest uppercase">Click to dive in</p>
           </div>
-        </motion.div>
+        </div>
       </main>
 
       {/* Floating Chat Input Section */}
-      <motion.div 
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="px-6 pb-16 relative z-40"
-      >
+      <div className="px-6 pb-16 relative z-40 animate-slide-up stagger-3">
         <div className="bg-white/85 dark:bg-zinc-900/85 backdrop-blur-3xl p-3 rounded-full border border-white/70 dark:border-white/15 shadow-[0_45px_100px_-20px_rgba(0,0,0,0.35)] flex items-center gap-3 group focus-within:ring-4 focus-within:ring-primary/30 transition-all">
-          <div className="pl-6 flex items-center gap-3 flex-1">
+          <div className="pl-6 flex items-center gap-3">
              <span className="material-symbols-outlined text-primary font-black text-2xl">chat_bubble</span>
-             <button onClick={() => onChatStart()} className="text-slate-400 text-lg font-black text-left py-4 outline-none flex-1">
+             <button onClick={() => onChatStart()} className="text-slate-400 text-lg font-black text-left py-4 outline-none">
                 {currentT.placeholder}
              </button>
           </div>
-          <motion.button 
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => onChatStart()} 
-            className="ml-auto size-16 rounded-full bg-primary text-[#0d1b14] flex items-center justify-center shadow-2xl shadow-primary/50 transition-all"
-          >
+          <button onClick={() => onChatStart()} className="ml-auto size-16 rounded-full bg-primary text-[#0d1b14] flex items-center justify-center shadow-2xl shadow-primary/50 active:scale-90 hover:scale-110 transition-all group-hover:rotate-6">
             <span className="material-symbols-outlined font-black text-3xl">send</span>
-          </motion.button>
+          </button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Language Picker Bottom Sheet */}
-      <AnimatePresence>
-        {showLangPicker && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-end justify-center px-4 pb-4 bg-black/40 backdrop-blur-sm transition-all duration-300" 
-            onClick={() => setShowLangPicker(false)}
+      {showLangPicker && (
+        <div className="fixed inset-0 z-[100] flex items-end justify-center px-4 pb-4 bg-black/40 backdrop-blur-sm transition-all duration-300" onClick={() => setShowLangPicker(false)}>
+          <div 
+            className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-[3rem] overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-500 max-h-[70vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div 
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-[3rem] overflow-hidden shadow-2xl flex flex-col"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-8 border-b border-slate-100 dark:border-white/10 flex justify-between items-center shrink-0">
-                <h3 className="text-2xl font-black dark:text-white tracking-tighter italic">Select Language</h3>
-                <button onClick={() => setShowLangPicker(false)} className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center">
-                  <span className="material-symbols-outlined">close</span>
+            <div className="p-8 border-b border-slate-100 dark:border-white/10 flex justify-between items-center shrink-0">
+              <h3 className="text-2xl font-black dark:text-white tracking-tighter italic">Select Language</h3>
+              <button onClick={() => setShowLangPicker(false)} className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
+              {languages.map((l) => (
+                <button 
+                  key={l.code}
+                  onClick={() => {
+                    setLang(l.code);
+                    setShowLangPicker(false);
+                  }}
+                  className={`w-full flex items-center justify-between p-5 rounded-2xl transition-all ${lang === l.code ? 'bg-primary/20 border border-primary/40' : 'hover:bg-slate-50 dark:hover:bg-white/5'}`}
+                >
+                  <div className="flex items-center gap-4">
+                    <span className="text-2xl">{l.flag}</span>
+                    <span className={`text-lg font-black tracking-tight ${lang === l.code ? 'text-primary' : 'text-slate-800 dark:text-slate-100'}`}>
+                      {l.name}
+                    </span>
+                  </div>
+                  {lang === l.code && <span className="material-symbols-outlined text-primary font-black">check_circle</span>}
                 </button>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar max-h-[60vh]">
-                {languages.map((l, idx) => (
-                  <motion.button 
-                    key={l.code}
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: idx * 0.05 }}
-                    onClick={() => {
-                      setLang(l.code);
-                      setShowLangPicker(false);
-                    }}
-                    className={`w-full flex items-center justify-between p-5 rounded-2xl transition-all ${lang === l.code ? 'bg-primary/20 border border-primary/40' : 'hover:bg-slate-50 dark:hover:bg-white/5'}`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <span className="text-2xl">{l.flag}</span>
-                      <span className={`text-lg font-black tracking-tight ${lang === l.code ? 'text-primary' : 'text-slate-800 dark:text-slate-100'}`}>
-                        {l.name}
-                      </span>
-                    </div>
-                    {lang === l.code && <span className="material-symbols-outlined text-primary font-black">check_circle</span>}
-                  </motion.button>
-                ))}
-              </div>
-              <div className="p-4 shrink-0">
-                 <div className="h-1.5 w-16 bg-slate-200 dark:bg-white/10 rounded-full mx-auto mb-2"></div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              ))}
+            </div>
+            <div className="p-4 shrink-0">
+               <div className="h-1.5 w-16 bg-slate-200 dark:bg-white/10 rounded-full mx-auto mb-2"></div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 const ActionCard: React.FC<{ icon: string, label: string, color: string, onClick: () => void }> = ({ icon, label, color, onClick }) => (
-  <motion.button 
-    whileHover={{ x: 10 }}
-    whileTap={{ scale: 0.98 }}
+  <button 
     onClick={onClick} 
     className="w-full flex items-center p-5 bg-slate-50/80 dark:bg-zinc-800/60 rounded-[2.5rem] hover:bg-white dark:hover:bg-zinc-700 transition-all border-b-4 border-transparent hover:border-primary group hover:shadow-[0_20px_50px_-10px_rgba(0,0,0,0.1)] card-active text-left gap-5 h-auto min-h-[80px]"
   >
@@ -316,7 +260,7 @@ const ActionCard: React.FC<{ icon: string, label: string, color: string, onClick
     <div className="flex items-center justify-center size-10 rounded-full bg-slate-100/90 dark:bg-zinc-800 transition-all group-hover:bg-primary group-hover:text-[#0d1b14] shrink-0 self-center">
         <span className="material-symbols-outlined transition-colors group-hover:font-black">arrow_forward</span>
     </div>
-  </motion.button>
+  </button>
 );
 
 export default HomeView;
