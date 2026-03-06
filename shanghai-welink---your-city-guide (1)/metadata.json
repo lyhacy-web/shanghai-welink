@@ -1,0 +1,9 @@
+{
+  "name": "Shanghai Welink - Your City Guide",
+  "description": "An all-in-one lifestyle assistant for Shanghai, featuring AI-powered help, housing VR previews, healthcare discovery, and community connection.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
