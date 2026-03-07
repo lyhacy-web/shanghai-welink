@@ -1,14 +1,29 @@
 
 import React, { useState } from 'react';
+import { Session } from '@supabase/supabase-js';
+import { supabase } from '../supabaseClient';
 import { AppLanguage } from '../types';
 
 interface ProfileViewProps {
   lang: AppLanguage;
   onEditProfile: () => void;
+  onLogout: () => void;
+  session: Session | null;
 }
 
-const ProfileView: React.FC<ProfileViewProps> = ({ lang, onEditProfile }) => {
+const ProfileView: React.FC<ProfileViewProps> = ({ lang, onEditProfile, onLogout, session }) => {
   const [activeSubView, setActiveSubView] = useState<string | null>(null);
+
+  const avatars: Record<string, string> = {
+    'Tower': '🗼',
+    'Dumpling': '🥟',
+    'Plane Tree': '🌳',
+    'Clock Tower': '🕰️',
+  };
+
+  const avatarName = session?.user?.user_metadata?.avatar_url || 'Tower';
+  const avatarIcon = avatars[avatarName] || '🗼';
+  const displayName = session?.user?.email?.split('@')[0] || 'City Explorer';
 
   // Added missing language variants to fix the Record type error
   const t: Record<AppLanguage, any> = {
@@ -46,14 +61,16 @@ const ProfileView: React.FC<ProfileViewProps> = ({ lang, onEditProfile }) => {
           </div>
           
           <div className="size-32 rounded-[2.5rem] border-4 border-white p-1.5 bg-white shadow-2xl relative z-10 group rotate-3 hover:rotate-0 transition-transform duration-500">
-            <div className="size-full rounded-[2rem] bg-cover bg-center shadow-inner" style={{ backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuBec6QstvBcsp7IjIxA8NzP9FM944pZm98ROmF9xVhBFJeXxdC7PytKRIkrDSJcp5bhNXANMjW00IDwhCklXY2jYsQRKTMozR4yXPpg3FrFFuCnHb1I2vid0RvmsqhNaNSRCQeA33VSqBrZhoO55FaSrWtZaX7nSpYEa56_lqXXqU_6ixx8kWM7RjAtfHf5EWMAku3G9h0IOjMhml-xOSAxcgEv1L0gNPLlvSxBSdVnBoHt6dbAqvHCcIk-S_M8qJ8ai53-fMrdwEQ")` }} />
+            <div className="size-full rounded-[2rem] bg-primary/10 flex items-center justify-center text-6xl shadow-inner">
+              {avatarIcon}
+            </div>
             <div className="absolute -bottom-2 -right-2 bg-white rounded-2xl p-2 shadow-xl animate-bounce">
               <span className="material-symbols-outlined text-primary font-black">verified_user</span>
             </div>
           </div>
           
           {/* 修复：取消 shimmer 效果，增强字体清晰度 */}
-          <h2 className="mt-8 text-4xl font-black text-[#0d1b14] leading-none relative z-10 tracking-tighter italic drop-shadow-sm">City Explorer</h2>
+          <h2 className="mt-8 text-4xl font-black text-[#0d1b14] leading-none relative z-10 tracking-tighter italic drop-shadow-sm">{displayName}</h2>
           <div className="mt-4 px-5 py-1.5 bg-[#0d1b14]/10 rounded-full backdrop-blur-md relative z-10">
             <p className="text-[#0d1b14] font-black text-[11px] uppercase tracking-[0.3em]">{currentT.lv}</p>
           </div>
@@ -65,7 +82,12 @@ const ProfileView: React.FC<ProfileViewProps> = ({ lang, onEditProfile }) => {
             <ProfileItem icon="favorite" label={currentT.saved} onClick={() => setActiveSubView('Favorites')} />
             <ProfileItem icon="token" label={currentT.creds} onClick={() => setActiveSubView('Points')} />
             <ProfileItem icon="settings" label={currentT.set} onClick={() => setActiveSubView('Settings')} />
-            <ProfileItem icon="logout" label={currentT.out} color="text-rose-500" onClick={() => alert('Signing out...')} />
+            <ProfileItem 
+              icon="logout" 
+              label={currentT.out} 
+              color="text-rose-500" 
+              onClick={onLogout} 
+            />
           </div>
 
           <div className="pt-16 pb-8 flex flex-col items-center animate-slide-up stagger-1">
@@ -153,7 +175,7 @@ const AccountInfoRow: React.FC<{ label: string; value: string }> = ({ label, val
   </div>
 );
 
-const ProfileItem: React.FC<{ icon: string; label: string; onClick: () => void; color?: string }> = ({ icon, label, onClick, color = "text-slate-800 dark:text-slate-200" }) => (
+const ProfileItem: React.FC<{ icon: string; label: string; onClick?: () => void; color?: string }> = ({ icon, label, onClick, color = "text-slate-800 dark:text-slate-200" }) => (
   <button onClick={onClick} className="flex w-full items-center justify-between p-6 hover:bg-slate-50 dark:hover:bg-white/5 transition-all border-b border-slate-50 last:border-b-0 group">
     <div className="flex items-center gap-6">
       <div className="size-12 rounded-2xl bg-slate-50 dark:bg-white/5 flex items-center justify-center group-hover:bg-primary/20 transition-all group-hover:rotate-6 shadow-sm"><span className={`material-symbols-outlined text-2xl ${color}`}>{icon}</span></div>

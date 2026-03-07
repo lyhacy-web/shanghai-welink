@@ -109,7 +109,7 @@ const HomeView: React.FC<HomeViewProps> = ({ lang, setLang, onChatStart, onCateg
                 <div className="size-2 rounded-full bg-white/60 shadow-lg"></div>
               </div>
             </div>
-            <h1 className="text-white text-6xl font-black leading-none italic mt-2 drop-shadow-2xl tracking-tighter shimmer-text animate-neon-shift">we Link!</h1>
+            <h1 className="text-white text-6xl font-black leading-none italic mt-2 drop-shadow-2xl tracking-tighter shimmer-text animate-neon-shift">weLink!</h1>
             <div className="flex items-center gap-3 mt-4">
                 <div className="h-[3px] w-10 bg-white/60 rounded-full"></div>
                 <p className="text-white font-black text-[11px] tracking-[0.35em] uppercase opacity-90 whitespace-nowrap">{currentT.sub}</p>

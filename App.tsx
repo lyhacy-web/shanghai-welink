@@ -1,6 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
+import { Session } from '@supabase/supabase-js';
+import { supabase } from './supabaseClient';
 import { ViewType, Message, AppLanguage, UserProfile } from './types';
+import LoginView from './components/LoginView';
 import HomeView from './components/HomeView';
 import ExploreView from './components/ExploreView';
 import ConnectView from './components/ConnectView';
@@ -15,6 +18,21 @@ const App: React.FC = () => {
   const [initialChatPrompt, setInitialChatPrompt] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const [chatHistory, setChatHistory] = useState<Message[]>([
     {
@@ -26,6 +44,8 @@ const App: React.FC = () => {
   ]);
 
   useEffect(() => {
+    if (!session) return;
+
     try {
       const savedProfile = localStorage.getItem('welink_user_profile');
       if (savedProfile) {
@@ -41,12 +61,18 @@ const App: React.FC = () => {
       console.error("Profile load error:", e);
     }
     setShowOnboarding(true);
-  }, []);
+  }, [session]);
 
   const handleOnboardingComplete = (profile: UserProfile) => {
     setUserProfile(profile);
     localStorage.setItem('welink_user_profile', JSON.stringify(profile));
     setShowOnboarding(false);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    localStorage.clear();
+    setUserProfile(null);
   };
 
   const navigateTo = (view: ViewType, prompt: string | null = null) => {
@@ -76,7 +102,7 @@ const App: React.FC = () => {
           />
         );
       case ViewType.PROFILE:
-        return <ProfileView lang={lang} onEditProfile={() => setShowOnboarding(true)} />;
+        return <ProfileView lang={lang} onEditProfile={() => setShowOnboarding(true)} onLogout={handleLogout} session={session} />;
       default:
         return <HomeView lang={lang} setLang={setLang} onChatStart={(p) => navigateTo(ViewType.CHAT, p)} onCategorySelect={() => navigateTo(ViewType.EXPLORE)} />;
     }
@@ -97,6 +123,10 @@ const App: React.FC = () => {
   };
 
   const currentLabels = labels[lang] || labels['EN'];
+
+  if (!session) {
+    return <LoginView lang={lang} />;
+  }
 
   return (
     <div className="relative flex h-screen w-full flex-col overflow-hidden max-w-md mx-auto bg-white dark:bg-[#0a140f] shadow-2xl transition-colors duration-300 font-display">

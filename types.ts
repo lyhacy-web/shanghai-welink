@@ -17,6 +17,7 @@ export interface Message {
   userQuery?: string;
   icebreakers?: string[];
   isInsight?: boolean;
+  isWarning?: boolean;
 }
 
 export interface EventItem {

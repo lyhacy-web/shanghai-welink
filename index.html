@@ -31,6 +31,8 @@
                         'neon-shift': 'neon-shift 3s ease-in-out infinite',
                         'shimmer': 'shimmer 2.5s infinite linear',
                         'blob': 'blob 12s infinite alternate',
+                        'spin-slow': 'spin 12s linear infinite',
+                        'bounce-subtle': 'bounce-subtle 3s ease-in-out infinite',
                     },
                     keyframes: {
                         float: {
@@ -66,6 +68,10 @@
                             '33%': { transform: 'translate(50px, -70px) scale(1.15)' },
                             '66%': { transform: 'translate(-40px, 30px) scale(0.95)' },
                             '100%': { transform: 'translate(0, 0) scale(1)' },
+                        },
+                        'bounce-subtle': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
                         }
                     }
                 },
@@ -77,19 +83,23 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            background-color: #f6fcf9;
+        }
+        .dark body {
+            background-color: #0a140f;
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         .glass {
-            background: rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
         .dark .glass {
-            background: rgba(10, 20, 15, 0.65);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(10, 20, 15, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .neon-text {
@@ -107,15 +117,36 @@
         .floating-emoji {
             pointer-events: none;
             user-select: none;
-            opacity: 0.15;
+            opacity: 0.2;
             position: absolute;
             z-index: 0;
-            filter: blur(0.5px);
+            filter: blur(0.3px);
+            transition: all 0.5s ease;
         }
         
         .card-active:active {
             transform: scale(0.96);
             transition: transform 0.1s ease;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+
+        .gradient-border {
+            position: relative;
+            background: linear-gradient(to bottom right, rgba(19, 236, 128, 0.4), rgba(59, 130, 246, 0.4));
+            padding: 2px;
+            border-radius: 2.5rem;
+        }
+        .gradient-border > div {
+            background: white;
+            border-radius: 2.4rem;
+        }
+        .dark .gradient-border > div {
+            background: #0a140f;
         }
 
         /* 修复聊天段落空格显示 */

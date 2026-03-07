@@ -26,8 +26,6 @@ const ChatView: React.FC<ChatViewProps> = ({ lang, userProfile, history, setHist
   const [buddy, setBuddy] = useState<any | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const processedPromptRef = useRef<string | null>(null);
-  const lastSentMessageRef = useRef<string | null>(null);
-  const lastSentTimeRef = useRef<number>(0);
 
   const avatars = {
     guide: "https://lh3.googleusercontent.com/aida-public/AB6AXuD1AnjqkPoQm3pk-3kBpy77PCfjcc07Zlnpv4KgNiT4VZBC_YvZXFAgnfszjD5gYRcQ8AKG5tNiApQEfIJe4bjL5dP2uYBqK-NbYj07H-cC60gV85aAnOtQ6ebK6shs4tAtEPG0qJMPw-svNd8gylzgFUgBUtHPJsJsMN5oO8v8QoKdWgJwSj8_lK38sclH6lOz86DuHl2t9ANsHnIm_goxAjNsgLD3_WVL3aukvFRT2THSx2jSXX5UknXszs_L9D-0YQ0srpuDMiw",
@@ -61,7 +59,7 @@ const ChatView: React.FC<ChatViewProps> = ({ lang, userProfile, history, setHist
   }, [currentHistory.length]);
 
   useEffect(() => {
-    if (initialPrompt && initialPrompt !== processedPromptRef.current) {
+    if (initialPrompt && processedPromptRef.current !== initialPrompt) {
       processedPromptRef.current = initialPrompt;
       if (initialPrompt.startsWith('JOIN_GROUP:')) {
         const name = initialPrompt.replace('JOIN_GROUP:', '');
@@ -77,8 +75,6 @@ const ChatView: React.FC<ChatViewProps> = ({ lang, userProfile, history, setHist
         handleSend(initialPrompt);
       }
       clearInitialPrompt();
-    } else if (!initialPrompt) {
-      processedPromptRef.current = null;
     }
   }, [initialPrompt]);
 
@@ -86,20 +82,21 @@ const ChatView: React.FC<ChatViewProps> = ({ lang, userProfile, history, setHist
     const textToSend = messageText || input;
     if (!textToSend.trim()) return;
 
-    // Prevent duplicate messages sent within a short window (500ms) with same content
-    const now = Date.now();
-    if (textToSend === lastSentMessageRef.current && (now - lastSentTimeRef.current) < 500) {
-      return;
-    }
-    lastSentMessageRef.current = textToSend;
-    lastSentTimeRef.current = now;
-
     const userMessage: Message = { id: Date.now().toString(), sender: 'user', text: textToSend, timestamp: Date.now() };
     
+    const addMessageUnique = (prev: Message[], newMessage: Message) => {
+      const lastMsg = prev[prev.length - 1];
+      // Prevent duplicate messages sent within a short timeframe (2s)
+      if (lastMsg && lastMsg.text === newMessage.text && lastMsg.sender === newMessage.sender && (Date.now() - lastMsg.timestamp < 2000)) {
+        return prev;
+      }
+      return [...prev, newMessage];
+    };
+
     if (viewMode === 'group') {
-      setGroupHistory(prev => [...prev, userMessage]);
+      setGroupHistory(prev => addMessageUnique(prev, userMessage));
     } else {
-      setHistory(prev => [...prev, userMessage]);
+      setHistory(prev => addMessageUnique(prev, userMessage));
     }
     
     setInput('');
@@ -142,7 +139,16 @@ const ChatView: React.FC<ChatViewProps> = ({ lang, userProfile, history, setHist
               isInsight: true
             });
           }
-          setHistory(prev => [...prev, ...newMessages]);
+          setHistory(prev => {
+             if (newMessages.length > 0) {
+                const lastMsg = prev[prev.length - 1];
+                const firstNew = newMessages[0];
+                if (lastMsg && lastMsg.text === firstNew.text && lastMsg.sender === firstNew.sender && (Date.now() - lastMsg.timestamp < 2000)) {
+                   return prev;
+                }
+             }
+             return [...prev, ...newMessages];
+          });
         } else {
           const adminKeywords = /配偶|工作许可|孩子|入学|公寓|人才|续签|spouse|work permit|enrollment|apartment|talent|renewal/i;
         const infoKeywords = /医院|诊所|宠物|打疫苗|附近|哪里|周末活动|活动|咖啡|天气|交通|费用|hospital|clinic|pet|vaccination|nearby|where|weekend|event|coffee|cafe|weather|traffic|cost/i;
@@ -183,13 +189,13 @@ const ChatView: React.FC<ChatViewProps> = ({ lang, userProfile, history, setHist
 
         await minDelay;
         const aiMessage: Message = { id: (Date.now() + 1).toString(), sender: 'ai', text: aiResponseText, timestamp: Date.now(), userQuery: textToSend };
-        setHistory(prev => [...prev, aiMessage]);
+        setHistory(prev => addMessageUnique(prev, aiMessage));
       }
     } else {
       // Simple mock for Group Chat responses
         await minDelay;
         const aiMessage: Message = { id: (Date.now() + 1).toString(), sender: 'ai', text: "That sounds great! Looking forward to seeing everyone there! ✨", timestamp: Date.now() };
-        setGroupHistory(prev => [...prev, aiMessage]);
+        setGroupHistory(prev => addMessageUnique(prev, aiMessage));
       }
     } catch (error) {
       console.error(error);
