@@ -88,7 +88,7 @@ const App: React.FC = () => {
       case ViewType.EXPLORE:
         return <ExploreView />;
       case ViewType.CONNECT:
-        return <ConnectView lang={lang} userProfile={userProfile} onAiChatStart={(p) => navigateTo(ViewType.CHAT, p)} />;
+        return <ConnectView lang={lang} userProfile={userProfile} onAiChatStart={(p) => navigateTo(ViewType.CHAT, p)} session={session} />;
       case ViewType.CHAT:
         return (
           <ChatView 
