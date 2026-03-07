@@ -151,7 +151,7 @@ const ChatView: React.FC<ChatViewProps> = ({ lang, userProfile, history, setHist
           });
         } else {
           const adminKeywords = /配偶|工作许可|孩子|入学|公寓|人才|续签|spouse|work permit|enrollment|apartment|talent|renewal/i;
-        const infoKeywords = /医院|诊所|宠物|打疫苗|附近|哪里|周末活动|活动|咖啡|天气|交通|费用|hospital|clinic|pet|vaccination|nearby|where|weekend|event|coffee|cafe|weather|traffic|cost|west bund|regarding/i;
+        const infoKeywords = /医院|诊所|宠物|打疫苗|附近|哪里|周末活动|活动|咖啡|天气|交通|费用|hospital|clinic|pet|vaccination|nearby|where|weekend|event|coffee|cafe|weather|traffic|cost|west bund|regarding|nightlife/i;
         
         const isMatch = adminKeywords.test(textToSend) || infoKeywords.test(textToSend);
         
@@ -182,6 +182,8 @@ const ChatView: React.FC<ChatViewProps> = ({ lang, userProfile, history, setHist
              aiResponseText = lang === 'CN'
                ? "本次艺术漫步活动是免费的，但参观美术馆内的特定特展可能需要单独购票。🎨"
                : "The Art Walk event itself is free, though specific special exhibitions inside the museum may require separate tickets. 🎨";
+           } else if (lowerText.includes("west bund")) {
+             aiResponseText = "Checking events...";
            } else {
              aiResponseText = await sendMessageToLink(textToSend, lang);
            }
@@ -653,8 +655,8 @@ const AiMessageContent: React.FC<{
   const isGreeting = text.includes("Welcome to Shanghai") || text.includes("欢迎来到上海");
   const isAdmin = /配偶|工作许可|孩子|入学|公寓|人才|续签|spouse|work permit|enrollment|apartment|talent|renewal/i.test(userQuery);
   const isLocation = /医院|诊所|宠物|打疫苗|附近|哪里|咖啡|hospital|clinic|pet|vaccination|nearby|where|coffee|cafe/i.test(userQuery);
-  const isEvent = /西岸|艺术|活动|west bund|art|event|weekend/i.test(userQuery);
-  const isEventRAG = /天气|交通|费用|weather|traffic|cost|get there|direction|how much/i.test(userQuery);
+  const isEvent = /西岸|艺术|活动|west bund|art|event|weekend|nightlife/i.test(userQuery);
+  const isEventRAG = /天气|交通|费用|weather|traffic|cost|get there|direction|how much|west bund|nightlife/i.test(userQuery);
 
   // Extract interest from query for dynamic card content
   const interestMatch = userQuery.match(/regarding\s+(.*?)(\.|!|$)/i) || userQuery.match(/关于\s+(.*?)(\.|!|$)/i);
