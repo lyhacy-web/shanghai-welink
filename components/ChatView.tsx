@@ -151,7 +151,7 @@ const ChatView: React.FC<ChatViewProps> = ({ lang, userProfile, history, setHist
           });
         } else {
           const adminKeywords = /配偶|工作许可|孩子|入学|公寓|人才|续签|spouse|work permit|enrollment|apartment|talent|renewal/i;
-        const infoKeywords = /医院|诊所|宠物|打疫苗|附近|哪里|周末活动|活动|咖啡|天气|交通|费用|hospital|clinic|pet|vaccination|nearby|where|weekend|event|coffee|cafe|weather|traffic|cost/i;
+        const infoKeywords = /医院|诊所|宠物|打疫苗|附近|哪里|周末活动|活动|咖啡|天气|交通|费用|hospital|clinic|pet|vaccination|nearby|where|weekend|event|coffee|cafe|weather|traffic|cost|west bund|regarding/i;
         
         const isMatch = adminKeywords.test(textToSend) || infoKeywords.test(textToSend);
         
