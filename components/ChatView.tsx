@@ -656,6 +656,10 @@ const AiMessageContent: React.FC<{
   const isEvent = /西岸|艺术|活动|west bund|art|event|weekend/i.test(userQuery);
   const isEventRAG = /天气|交通|费用|weather|traffic|cost|get there|direction|how much/i.test(userQuery);
 
+  // Extract interest from query for dynamic card content
+  const interestMatch = userQuery.match(/regarding\s+(.*?)(\.|!|$)/i) || userQuery.match(/关于\s+(.*?)(\.|!|$)/i);
+  const currentInterest = interestMatch ? interestMatch[1].trim() : (lang === 'CN' ? '艺术' : 'Art');
+
   const handleInterestClick = () => {
     setLocalRegStatus('confirming');
   };
@@ -768,7 +772,7 @@ const AiMessageContent: React.FC<{
   };
 
   // Special Highly Integrated Activity Card
-  if (isEvent && !isGreeting) {
+  if (isEvent) {
     return (
       <div className="animate-slide-up flex flex-col gap-4">
         <div className="bg-white dark:bg-zinc-900 rounded-[2.5rem] overflow-hidden border border-slate-100 dark:border-white/5 shadow-2xl w-full max-w-[340px]">
@@ -779,15 +783,15 @@ const AiMessageContent: React.FC<{
                  <span className="text-[9px] font-black uppercase tracking-widest">Link Insight</span>
               </div>
               <div className="absolute bottom-4 left-6">
-                 <p className="text-white text-lg font-black tracking-tight leading-tight italic">West Bund Museum Art Walk 🎨</p>
+                 <p className="text-white text-lg font-black tracking-tight leading-tight italic">West Bund {currentInterest} Event 🎨</p>
                  <p className="text-white/80 text-[10px] font-bold mt-1 uppercase tracking-widest">Saturday · Oct 19, 14:00</p>
               </div>
            </div>
            <div className="p-6">
               <p className="text-[13px] font-bold text-slate-600 dark:text-slate-400 leading-relaxed italic mb-5">
                  {lang === 'CN' 
-                   ? "Hello! 我是 Link，很高兴能帮你探索本周六西岸充满活力的艺术场景！西岸美术馆正与蓬皮杜中心合作，不容错过。"
-                   : "Hello! I'm Link, and I'm so excited to help you explore the vibrant art scene at West Bund this Saturday! West Bund Museum is buzzing."
+                   ? `Hello! 我是 Link，很高兴能帮你探索本周六西岸充满活力的${currentInterest}场景！西岸正举办精彩活动，不容错过。`
+                   : `Hello! I'm Link, and I'm so excited to help you explore the vibrant ${currentInterest} scene at West Bund this Saturday! It's buzzing.`
                  }
               </p>
               <div className="flex items-center justify-between py-4 border-y border-slate-50 dark:border-white/5 mb-6">
