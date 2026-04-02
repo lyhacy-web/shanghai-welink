@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Message, AppLanguage, UserProfile } from '../types';
 import { sendMessageToLink } from '../services/geminiService';
@@ -24,6 +23,7 @@ const ChatView: React.FC<ChatViewProps> = ({ lang, userProfile, history, setHist
   const [hubName, setHubName] = useState<string | null>(null);
   const [groupHistory, setGroupHistory] = useState<Message[]>([]);
   const [buddy, setBuddy] = useState<any | null>(null);
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const processedPromptRef = useRef<string | null>(null);
 
@@ -32,6 +32,22 @@ const ChatView: React.FC<ChatViewProps> = ({ lang, userProfile, history, setHist
   };
 
   const currentHistory = viewMode === 'group' ? groupHistory : history;
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+        }
+      );
+    }
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current && !isSearchOpen) {
@@ -156,6 +172,7 @@ const ChatView: React.FC<ChatViewProps> = ({ lang, userProfile, history, setHist
         const isMatch = adminKeywords.test(textToSend) || infoKeywords.test(textToSend);
         
         let aiResponseText = "";
+        let groundingMetadata: any = null;
         if (!isMatch && textToSend.length < 15 && !textToSend.includes('?') && !textToSend.includes('？') && !textToSend.includes('hi') && !textToSend.includes('你好')) {
            aiResponseText = lang === 'CN' 
              ? "我还在学习中！您可以试试问：‘配偶如何申请工作许可？’、‘附近有哪些国际医院？’ 或 ‘怎么申请人才公寓？’"
@@ -185,12 +202,21 @@ const ChatView: React.FC<ChatViewProps> = ({ lang, userProfile, history, setHist
            } else if (lowerText.includes("west bund")) {
              aiResponseText = "Checking events...";
            } else {
-             aiResponseText = await sendMessageToLink(textToSend, lang);
+             const response = await sendMessageToLink(textToSend, lang, history, userProfile, userLocation || undefined);
+             aiResponseText = response.text;
+             groundingMetadata = response.groundingMetadata;
            }
         }
 
         await minDelay;
-        const aiMessage: Message = { id: (Date.now() + 1).toString(), sender: 'ai', text: aiResponseText, timestamp: Date.now(), userQuery: textToSend };
+        const aiMessage: Message = { 
+          id: (Date.now() + 1).toString(), 
+          sender: 'ai', 
+          text: aiResponseText, 
+          timestamp: Date.now(), 
+          userQuery: textToSend,
+          groundingMetadata: groundingMetadata
+        };
         setHistory(prev => addMessageUnique(prev, aiMessage));
       }
     } else {
@@ -436,6 +462,7 @@ const ChatView: React.FC<ChatViewProps> = ({ lang, userProfile, history, setHist
                     buddy={buddy}
                     icebreakers={msg.icebreakers}
                     isInsight={msg.isInsight}
+                    groundingMetadata={msg.groundingMetadata}
                   />
                 ) : highlightText(msg.text, searchQuery)}
               </div>
@@ -504,7 +531,8 @@ const AiMessageContent: React.FC<{
   buddy?: any;
   icebreakers?: string[];
   isInsight?: boolean;
-}> = ({ text, lang, onRelatedClick, userQuery = "", searchQuery = "", onRegister, isRegistered, onJoinGroup, isGroup, buddy, icebreakers, isInsight }) => {
+  groundingMetadata?: any;
+}> = ({ text, lang, onRelatedClick, userQuery = "", searchQuery = "", onRegister, isRegistered, onJoinGroup, isGroup, buddy, icebreakers, isInsight, groundingMetadata }) => {
   const [showFaq, setShowFaq] = useState(false);
   const [localRegStatus, setLocalRegStatus] = useState<'none' | 'confirming' | 'submitting' | 'success'>('none');
   const [showQuickQuestions, setShowQuickQuestions] = useState(false);
@@ -586,8 +614,6 @@ const AiMessageContent: React.FC<{
   const t = {
     CN: {
       materials: "所需材料：",
-      official: "官方申请入口",
-      download: "下载清单（PDF）",
       otherAsk: "其他用户也问过：",
       q1: "办理流程需要多久？",
       q2: "收费标准是多少？",
@@ -596,8 +622,6 @@ const AiMessageContent: React.FC<{
       call: "拨打电话",
       policy: "VIEW FULL POLICY",
       join: "我想去",
-      ask: "还有疑问",
-      later: "暂时没空",
       members: "12 位好友已参加",
       startsIn: "2 天后开始",
       regAuto: "已为您从账户信息中自动填写。报名成功！✨",
@@ -619,8 +643,6 @@ const AiMessageContent: React.FC<{
     },
     EN: {
       materials: "Required Materials:",
-      official: "Official Application Portal",
-      download: "Download Checklist (PDF)",
       otherAsk: "Other users also asked:",
       q1: "How long is the process?",
       q2: "What are the fees?",
@@ -629,8 +651,6 @@ const AiMessageContent: React.FC<{
       call: "Call",
       policy: "VIEW FULL POLICY",
       join: "I'm interested",
-      ask: "Have questions",
-      later: "Not now",
       members: "12 members joined",
       startsIn: "Starts in 2 days",
       regAuto: "I've auto-filled the form using your account info. Registration successful! ✨",
@@ -654,7 +674,7 @@ const AiMessageContent: React.FC<{
 
   const isGreeting = text.includes("Welcome to Shanghai") || text.includes("欢迎来到上海");
   const isAdmin = /配偶|工作许可|孩子|入学|公寓|人才|续签|spouse|work permit|enrollment|apartment|talent|renewal/i.test(userQuery);
-  const isLocation = /医院|诊所|宠物|打疫苗|附近|哪里|咖啡|hospital|clinic|pet|vaccination|nearby|where|coffee|cafe/i.test(userQuery);
+  const isLocation = /医院|诊所|宠物|打疫苗|附近|哪里|咖啡|餐厅|饭店|美食|好吃|推荐|hospital|clinic|pet|vaccination|nearby|where|coffee|cafe|restaurant|food|eat|recommend/i.test(userQuery);
   const isEvent = /西岸|艺术|活动|west bund|art|event|weekend|nightlife/i.test(userQuery);
   const isEventRAG = /天气|交通|费用|weather|traffic|cost|get there|direction|how much|west bund|nightlife/i.test(userQuery);
 
@@ -753,22 +773,6 @@ const AiMessageContent: React.FC<{
            <span className="material-symbols-outlined text-lg">celebration</span>
            {t.join}
         </button>
-        {showExtraButtons && (
-          <div className="grid grid-cols-2 gap-3">
-            <button 
-              onClick={() => setShowQuickQuestions(true)}
-              className="py-3 bg-white dark:bg-zinc-800 border-2 border-slate-100 dark:border-white/5 text-slate-600 dark:text-slate-300 font-black rounded-2xl text-[11px] uppercase tracking-widest active:scale-95 transition-all"
-            >
-              {t.ask}
-            </button>
-            <button 
-              onClick={() => onRelatedClick(lang === 'CN' ? "暂时没空" : "Maybe later")}
-              className="py-3 bg-white dark:bg-zinc-800 border-2 border-slate-100 dark:border-white/5 text-slate-400 font-black rounded-2xl text-[11px] uppercase tracking-widest active:scale-95 transition-all"
-            >
-              {t.later}
-            </button>
-          </div>
-        )}
       </div>
     );
   };
@@ -864,16 +868,6 @@ const AiMessageContent: React.FC<{
             ))}
           </ul>
         </div>
-        <div className="flex flex-col gap-2">
-          <button className="w-full py-3 px-6 bg-primary text-[#0d1b14] font-black rounded-xl shadow-md flex items-center justify-start gap-2 active:scale-95 transition-all text-sm">
-            <span className="material-symbols-outlined font-black text-lg">language</span>
-            {t.official}
-          </button>
-          <button className="w-full py-3 px-6 bg-white/60 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-100 font-bold rounded-xl flex items-center justify-start gap-2 active:scale-95 transition-all text-sm">
-            <span className="material-symbols-outlined font-black text-lg">file_download</span>
-            {t.download}
-          </button>
-        </div>
         <div className="mt-1 border-t border-slate-100 dark:border-white/5 pt-3">
           <button 
             onClick={() => setShowFaq(!showFaq)} 
@@ -898,23 +892,31 @@ const AiMessageContent: React.FC<{
 
   if (isLocation && !isGreeting) {
     const isCoffee = /咖啡|coffee|cafe/i.test(userQuery);
-    const mockVenues = isCoffee ? [
-      { name: "Manner Coffee (Jing'an)", addr: "818 West Nanjing Road", tel: "400-123-4567" },
-      { name: "Seesaw Coffee (Reel Mall)", addr: "1601 Nanjing West Road, 5F", tel: "021-3456-7890" }
+    const groundingChunks = groundingMetadata?.groundingChunks;
+    const venues = groundingChunks?.map((chunk: any) => ({
+      name: chunk.maps?.title || chunk.web?.title,
+      addr: chunk.maps?.uri || chunk.web?.uri,
+      tel: "", // Not always available in grounding
+      uri: chunk.maps?.uri || chunk.web?.uri
+    })).filter((v: any) => v.name) || [];
+
+    const displayVenues = venues.length > 0 ? venues : (isCoffee ? [
+      { name: "Manner Coffee (Jing'an)", addr: "818 West Nanjing Road", tel: "400-123-4567", uri: "#" },
+      { name: "Seesaw Coffee (Reel Mall)", addr: "1601 Nanjing West Road, 5F", tel: "021-3456-7890", uri: "#" }
     ] : [
-      { name: "Jiahui Health (Xuhui)", addr: "689 Guiping Road, Xuhui", tel: "400-868-3000" },
-      { name: "SinoUnited Health", addr: "1376 Nanjing West Road", tel: "400-186-2116" }
-    ];
+      { name: "Jiahui Health (Xuhui)", addr: "689 Guiping Road, Xuhui", tel: "400-868-3000", uri: "#" },
+      { name: "SinoUnited Health", addr: "1376 Nanjing West Road", tel: "400-186-2116", uri: "#" }
+    ]);
 
     return (
       <div className="px-5 py-3 glass dark:bg-zinc-900 text-slate-800 dark:text-slate-100 rounded-2xl rounded-tl-none font-medium border-white/50 dark:border-white/5 shadow-lg flex flex-col gap-4 text-left">
         <p className="font-medium text-slate-800 dark:text-slate-100 leading-relaxed">{highlightText(text, searchQuery)}</p>
         <div className="space-y-3">
-          {mockVenues.map((v, i) => (
+          {displayVenues.map((v: any, i: number) => (
             <div 
               key={i} 
               className="p-4 bg-white dark:bg-zinc-800 rounded-xl border border-slate-100 dark:border-white/10 shadow-md animate-slide-up hover:border-primary/30 transition-all group" 
-              style={{ animationDelay: `${i * 0.15}s` }}
+              style={{ animationDelay: `${i * 0.15}s` }} onClick={() => v.uri && window.open(v.uri, '_blank')}
             >
               <h4 className="font-black text-slate-900 dark:text-white text-base tracking-tight mb-2 group-hover:text-primary transition-colors text-left">{highlightText(v.name, searchQuery)}</h4>
               <div className="space-y-1 mb-3">
@@ -922,10 +924,12 @@ const AiMessageContent: React.FC<{
                   <span className="material-symbols-outlined text-[14px] text-primary">location_on</span>
                   {highlightText(v.addr, searchQuery)}
                 </p>
-                <p className="text-[11px] text-slate-500 font-bold flex items-center gap-2 text-left">
-                  <span className="material-symbols-outlined text-[14px] text-primary">phone</span>
-                  {v.tel}
-                </p>
+                {v.tel && (
+                  <p className="text-[11px] text-slate-500 font-bold flex items-center gap-2 text-left">
+                    <span className="material-symbols-outlined text-[14px] text-primary">phone</span>
+                    {v.tel}
+                  </p>
+                )}
               </div>
               <button className="w-full py-2 px-5 bg-primary/10 text-primary font-black rounded-lg text-[10px] flex items-center justify-start gap-2 active:scale-95 transition-all uppercase tracking-widest">
                 <span className="material-symbols-outlined text-[14px] font-black">map</span>
