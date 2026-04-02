@@ -1,4 +1,3 @@
-
 export enum ViewType {
   HOME = 'HOME',
   EXPLORE = 'EXPLORE',
@@ -18,6 +17,7 @@ export interface Message {
   icebreakers?: string[];
   isInsight?: boolean;
   isWarning?: boolean;
+  groundingMetadata?: any;
 }
 
 export interface EventItem {
