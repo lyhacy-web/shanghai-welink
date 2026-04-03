@@ -57,7 +57,7 @@ export const sendMessageToLink = async (
   location?: { latitude: number; longitude: number }
 ): Promise<LinkResponse> => {
   // Use process.env.GEMINI_API_KEY as per environment guidelines
-  const apiKey ="AIzaSyDO3LYGQAovi0FtMY5se3rVPeCoUgLZTJk";
+  const apiKey ="AIzaSyCwkNkBFxf67Z_-2ihQQYVhjVznkyIHIE8";
 
   if (!apiKey) {
     console.error("API Key missing! Make sure GEMINI_API_KEY is set.");
