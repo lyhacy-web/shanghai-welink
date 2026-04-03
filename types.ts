@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3e4b0844055cf85b6030b1319d90e1196695fd23
 export enum ViewType {
   HOME = 'HOME',
   EXPLORE = 'EXPLORE',

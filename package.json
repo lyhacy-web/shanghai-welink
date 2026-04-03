@@ -10,11 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@google/genai": "^1.39.0",
     "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.98.0",
     "framer-motion": "^11.0.0",
     "lucide-react": "^0.300.0",
+=======
+    "framer-motion": "^11.0.0",
+"lucide-react": "^0.300.0",
+    "@google/genai": "^1.39.0",
+    "@supabase/supabase-js": "^2.98.0",
+>>>>>>> 3e4b0844055cf85b6030b1319d90e1196695fd23
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },

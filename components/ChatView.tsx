@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3e4b0844055cf85b6030b1319d90e1196695fd23
 import React, { useState, useRef, useEffect } from 'react';
 import { Message, AppLanguage, UserProfile } from '../types';
 import { sendMessageToLink } from '../services/geminiService';

@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AppLanguage, Message, UserProfile } from "../types";
 
 // 获取系统指令：定义 Link 的双重人格
 const getSystemInstruction = (lang: AppLanguage, profile: UserProfile | null = null) => {
+=======
+import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
+import { AppLanguage, Message, UserProfile } from "../types";
+
+const getSystemInstruction = (lang: AppLanguage, profile: UserProfile | null = null) => {
+  // 【产品逻辑】：这里定义了 Link 的双重人格
+>>>>>>> 3e4b0844055cf85b6030b1319d90e1196695fd23
   let base = `You are 'Link', the cheerful AI guide for "Shanghai We Link!". 
 
   ROLE RULES:
@@ -24,7 +32,11 @@ const getSystemInstruction = (lang: AppLanguage, profile: UserProfile | null = n
     - Occupation: ${profile.occupation}
     - Duration in Shanghai: ${profile.durationInSH}
     - Interests: ${profile.interests.join(', ')}
+<<<<<<< HEAD
     Use this context to personalize your advice.`;
+=======
+    Use this context to personalize your advice (e.g., recommend things near their interests or relevant to their background).`;
+>>>>>>> 3e4b0844055cf85b6030b1319d90e1196695fd23
   }
 
   const languageMap: Record<AppLanguage, string> = {
@@ -36,7 +48,11 @@ const getSystemInstruction = (lang: AppLanguage, profile: UserProfile | null = n
     'ES': `${base}\nResponde en español. Usa dobles saltos de línea. No uses asteriscos (*).`,
     'DE': `${base}\nAntworte auf Deutsch. Verwenden Sie doppelte Zeilenumbrüche. Verwenden Sie keine Sternchen (*).`,
     'IT': `${base}\nRispondi in italiano. Usa doppi salti di riga. Non usare asterischi (*).`,
+<<<<<<< HEAD
     'PT': `${base}\nResponda em português. Use quebras de linha duplas. No uses asteriscos (*).`,
+=======
+    'PT': `${base}\nResponda em português. Use quebras de linha duplas. Não use asteriscos (*).`,
+>>>>>>> 3e4b0844055cf85b6030b1319d90e1196695fd23
     'RU': `${base}\nОтвечайте на русском языке. Используйте двойные разрывы строк. Не используйте звездочки (*).`,
     'AR': `${base}\nيرجى الرد باللغة العربية. استخدم فواصل أسطر مزدوجة. لا تستخدم علامات النجمة (*).`
   };
@@ -44,10 +60,19 @@ const getSystemInstruction = (lang: AppLanguage, profile: UserProfile | null = n
   return languageMap[lang] || languageMap['EN'];
 };
 
+<<<<<<< HEAD
+=======
+export interface LinkResponse {
+  text: string;
+  groundingMetadata?: any;
+}
+
+>>>>>>> 3e4b0844055cf85b6030b1319d90e1196695fd23
 export const sendMessageToLink = async (
   message: string, 
   lang: AppLanguage = 'EN', 
   history: Message[] = [],
+<<<<<<< HEAD
   profile: UserProfile | null = null
 ): Promise<string> => {
   // 1. Vite 环境下正确读取 API Key
@@ -96,3 +121,80 @@ export const sendMessageToLink = async (
     return "Link had a small technical hiccup. Let's try again! 🏙️";
   }
 };
+=======
+  profile: UserProfile | null = null,
+  location?: { latitude: number; longitude: number }
+): Promise<LinkResponse> => {
+  // Use process.env.GEMINI_API_KEY as per environment guidelines
+  const apiKey =import.meta.env.VITE_GEMINI_API_KEY;
+
+  if (!apiKey) {
+    console.error("API Key missing! Make sure GEMINI_API_KEY is set.");
+    return { text: "Link is currently offline. Please check the API configuration. 🛠️" };
+  }
+
+  const ai = new GoogleGenAI({ apiKey: apiKey });
+  
+  // Convert history to Gemini format, ensuring alternating roles and starting with 'user'
+  const tempContents: any[] = [];
+  const historyToProcess = history.slice(-10);
+  
+  for (const msg of historyToProcess) {
+    const role = msg.sender === 'user' ? 'user' : 'model';
+    // Gemini requires the first message to be from the 'user'
+    if (tempContents.length === 0 && role === 'model') continue;
+    
+    if (tempContents.length > 0 && tempContents[tempContents.length - 1].role === role) {
+      // Merge consecutive messages from the same role
+      tempContents[tempContents.length - 1].parts[0].text += `\n${msg.text}`;
+    } else {
+      tempContents.push({
+        role,
+        parts: [{ text: msg.text }]
+      });
+    }
+  }
+
+  // Add current message, merging if the last message in history was also from 'user'
+  if (tempContents.length > 0 && tempContents[tempContents.length - 1].role === 'user') {
+    tempContents[tempContents.length - 1].parts[0].text += `\n${message}`;
+  } else {
+    tempContents.push({
+      role: 'user',
+      parts: [{ text: message }]
+    });
+  }
+  
+  try {
+    const response: GenerateContentResponse = await ai.models.generateContent({
+      // 使用最新的 Gemini 3 Flash，兼顾速度与智能
+      model: 'gemini-2.5-flash', 
+      contents: tempContents,
+      config: {
+        systemInstruction: getSystemInstruction(lang, profile),
+        // 【调优】：0.5 的温度既能保持生活话题的活泼，又能保证政策话题的稳健
+        temperature: 0.5, 
+        tools: [{ googleMaps: {} }],
+        toolConfig: location ? {
+          retrievalConfig: {
+            latLng: {
+              latitude: location.latitude,
+              longitude: location.longitude
+            }
+          }
+        } : undefined
+      },
+    });
+
+    const text = response.text || "Oops! Link is a bit shy right now. Try again? 🏮";
+    // Post-process to ensure no asterisks are present
+    return {
+      text: text.replace(/\*/g, ''),
+      groundingMetadata: response.candidates?.[0]?.groundingMetadata
+    };
+  } catch (error) {
+    console.error("Gemini API Error:", error);
+    return { text: "Link had a small technical hiccup. Let's try again! 🏙️" };
+  }
+};
+>>>>>>> 3e4b0844055cf85b6030b1319d90e1196695fd23
