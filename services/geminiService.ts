@@ -99,7 +99,7 @@ export const sendMessageToLink = async (
   try {
     const response: GenerateContentResponse = await ai.models.generateContent({
       // 使用最新的 Gemini 3 Flash，兼顾速度与智能
-      model: 'gemini-3-flash-preview', 
+      model: 'gemini-2.5-flash', 
       contents: tempContents,
       config: {
         systemInstruction: getSystemInstruction(lang, profile),
