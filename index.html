@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Shanghai Welink</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec80",
+                        "primary-dark": "#0bbd65",
+                        "background-light": "#f6fcf9",
+                        "background-dark": "#0a140f",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    animation: {
+                        'float-slow': 'float 8s ease-in-out infinite',
+                        'float-fast': 'float-subtle 5s ease-in-out infinite',
+                        'sparkle': 'sparkle 2s ease-in-out infinite',
+                        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+                        'slide-up': 'slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'neon-shift': 'neon-shift 3s ease-in-out infinite',
+                        'shimmer': 'shimmer 2.5s infinite linear',
+                        'blob': 'blob 12s infinite alternate',
+                        'spin-slow': 'spin 12s linear infinite',
+                        'bounce-subtle': 'bounce-subtle 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-25px) rotate(8deg)' },
+                        },
+                        'float-subtle': {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-10px) rotate(2deg)' },
+                        },
+                        sparkle: {
+                            '0%, 100%': { opacity: 0.3, transform: 'scale(1)' },
+                            '50%': { opacity: 1, transform: 'scale(1.25)' },
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(19, 236, 128, 0.2)' },
+                            '50%': { boxShadow: '0 0 40px rgba(19, 236, 128, 0.7)' },
+                        },
+                        'slide-up': {
+                            '0%': { transform: 'translateY(30px)', opacity: 0 },
+                            '100%': { transform: 'translateY(0)', opacity: 1 },
+                        },
+                        'neon-shift': {
+                            '0%, 100%': { filter: 'drop-shadow(0 0 10px rgba(19, 236, 128, 0.4))' },
+                            '50%': { filter: 'drop-shadow(0 0 25px rgba(19, 236, 128, 0.8))' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' },
+                        },
+                        blob: {
+                            '0%': { transform: 'translate(0, 0) scale(1)' },
+                            '33%': { transform: 'translate(50px, -70px) scale(1.15)' },
+                            '66%': { transform: 'translate(-40px, 30px) scale(0.95)' },
+                            '100%': { transform: 'translate(0, 0) scale(1)' },
+                        },
+                        'bounce-subtle': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            background-color: #f6fcf9;
+        }
+        .dark body {
+            background-color: #0a140f;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .dark .glass {
+            background: rgba(10, 20, 15, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .neon-text {
+            text-shadow: 0 0 10px rgba(19, 236, 128, 0.6), 0 0 20px rgba(19, 236, 128, 0.2);
+        }
+
+        .shimmer-text {
+            background: linear-gradient(90deg, #fff 0%, #13ec80 50%, #fff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s linear infinite;
+        }
+
+        .floating-emoji {
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.2;
+            position: absolute;
+            z-index: 0;
+            filter: blur(0.3px);
+            transition: all 0.5s ease;
+        }
+        
+        .card-active:active {
+            transform: scale(0.96);
+            transition: transform 0.1s ease;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+
+        .gradient-border {
+            position: relative;
+            background: linear-gradient(to bottom right, rgba(19, 236, 128, 0.4), rgba(59, 130, 246, 0.4));
+            padding: 2px;
+            border-radius: 2.5rem;
+        }
+        .gradient-border > div {
+            background: white;
+            border-radius: 2.4rem;
+        }
+        .dark .gradient-border > div {
+            background: #0a140f;
+        }
+
+        /* 修复聊天段落空格显示 */
+        .chat-text {
+            white-space: pre-wrap;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "@google/genai": "https://esm.sh/@google/genai@^1.39.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-300">
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
